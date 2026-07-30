@@ -1,0 +1,86 @@
+tr .actions-cell {
+  opacity: 0;
+}
+tr .actions-cell .slideshow-icon {
+  transform: scale(0.25);
+  transition: transform 0.2s ease;
+}
+
+tr:hover .actions-cell {
+  opacity: 1;
+}
+tr:hover .actions-cell .slideshow-icon {
+  transform: scale(1);
+}
+
+.tainacan-table .tainacan-relationship-group {
+  text-align: start;
+  list-style: none;
+  margin-inline-start: 0;
+  padding-inline-start: 0;
+}
+.tainacan-table .tainacan-relationship-group .tainacan-relationship-metadatum {
+  display: inline-block;
+}
+.tainacan-table .tainacan-relationship-group .tainacan-relationship-metadatum .tainacan-relationship-metadatum-header img {
+  display: none;
+}
+.tainacan-table .tainacan-relationship-group .tainacan-relationship-metadatum .tainacan-relationship-metadatum-header .label {
+  font-weight: normal;
+  font-size: 1em !important;
+  margin-top: 0;
+  margin-left: 0;
+  margin-bottom: 0;
+  margin-right: 0;
+  padding: 0;
+}
+.tainacan-table .tainacan-relationship-group .tainacan-relationship-metadatum .tainacan-metadatum {
+  display: none;
+}
+.tainacan-table .tainacan-relationship-group > .multivalue-separator {
+  display: inline-block;
+  max-height: 100%;
+  width: 1px;
+  background: var(--tainacan-gray2);
+  content: none;
+  color: transparent;
+  margin: 0 6px;
+}
+.tainacan-table .column-large-width .tainacan-compound-group {
+  list-style: none;
+  display: inline-block;
+  font-size: 1.125em;
+  margin-top: -0.25em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 100%;
+}
+.tainacan-table .column-large-width .tainacan-compound-group * {
+  display: inline-block;
+}
+.tainacan-table .column-large-width .tainacan-compound-group .label {
+  font-size: 1em !important;
+  padding: 0;
+  color: var(--tainacan-info-color);
+}
+.tainacan-table .column-large-width .tainacan-compound-group .label:not(:first-child)::before {
+  content: ", ";
+  font-size: 1em;
+  font-weight: normal;
+  color: var(--tainacan-info-color);
+  display: inline-block;
+  margin-inline-end: 0.35em;
+  margin-inline-start: -0.15em;
+}
+.tainacan-table .column-large-width .tainacan-compound-group .label::after {
+  content: ": ";
+  font-size: 1em;
+  color: var(--tainacan-info-color);
+  display: inline-block;
+  margin-inline-end: 0.15em;
+}
+.tainacan-table .column-large-width .tainacan-compound-group p {
+  font-size: 1em !important;
+  line-height: 1.65em !important;
+}

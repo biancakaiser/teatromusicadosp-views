@@ -1,0 +1,25 @@
+{
+  "name": "teatro-extra-viewmodes",
+  "version": "0.0.1",
+  "description": "",
+  "scripts": {
+    "build": "webpack",
+    "dev": "webpack serve --mode development --hot"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "qs": "^6.15.3",
+    "vue": "^3.5.39"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.2",
+    "@vue/compiler-sfc": "3.5.39",
+    "babel-loader": "^10.1.1",
+    "vue-loader": "^17.4.2",
+    "webpack": "^5.108.3",
+    "webpack-cli": "^7.1.0",
+    "webpack-dev-server": "^5.2.6"
+  }
+}
