@@ -46,13 +46,16 @@
                     class="company-accordion__item">
                     <h3 class="company-accordion__heading">
                         <button
-                            :id="company.headerId"
-                            type="button"
-                            class="company-accordion__trigger"
-                            :aria-expanded="activeCompanyGroupKey === company.key"
-                            :aria-controls="company.panelId"
-                            @click="toggleCompanyGroup(company.key)">
-                            <span class="company-accordion__title">{{ company.label }}</span>
+                        :id="company.headerId"
+                        type="button"
+                        class="company-accordion__trigger"
+                        :aria-expanded="activeCompanyGroupKey === company.key"
+                        :aria-controls="company.panelId"
+                        @click="toggleCompanyGroup(company.key)">
+                            <span
+                                v-if="company.link"
+                                class="company-accordion__link"
+                                v-html="company.link" />
                             <span class="company-accordion__summary">
                                 <span class="company-accordion__count">  |  {{ company.recordCountLabel }}</span>
                                 <span
@@ -69,6 +72,7 @@
                         :id="company.panelId"
                         class="company-accordion__panel"
                         role="region"
+                        :aria-expanded="activeCompanyGroupKey === company.key"
                         :aria-labelledby="company.headerId">
                         <ol
                             class="professional-timeline"
@@ -116,16 +120,16 @@
                                                     v-for="castMember in record.castMembers"
                                                     :key="castMember.key"
                                                     class="cast-list__item">
-                                                    <span
+                                                    <!-- <span
                                                         v-if="castMember.personHtml"
                                                         class="cast-list__person"
                                                         v-html="castMember.personHtml" />
                                                     <span
                                                         v-else
-                                                        class="cast-list__person cast-list__person--placeholder">Pessoa não informada</span>
+                                                        class="cast-list__person cast-list__person--placeholder">Pessoa não informada</span> -->
                                                     <span
                                                         v-if="castMember.roleText"
-                                                        class="cast-list__role"> - {{ castMember.roleText }}</span>
+                                                        class="cast-list__role">{{ castMember.roleText }}</span>
                                                 </li>
                                             </ul>
                                             <p
@@ -244,6 +248,7 @@ export default {
                     groupsByKey[key] = {
                         key: key,
                         label: this.getCompanyGroupLabel(item),
+                        link: this.getCompanyGroupLink(item),
                         items: []
                     };
                     groups.push(groupsByKey[key]);
@@ -286,6 +291,7 @@ export default {
                 return {
                     key: group.key,
                     label: group.label,
+                    link: group.link,
                     records: records,
                     headerId: this.getAccordionHeaderId(group.key),
                     panelId: this.getAccordionPanelId(group.key),
@@ -378,12 +384,14 @@ export default {
             return itemIndex >= 0 ? itemIndex : fallbackIndex;
         },
         toggleCompanyGroup(groupKey) {
+            console.log('toggleCompanyGroup', groupKey, this.activeCompanyGroupKey);
             this.activeCompanyGroupKey = this.activeCompanyGroupKey == groupKey ? null : groupKey;
         },
         getAccordionHeaderId(groupKey) {
             return (this.containerId || 'professional-history') + '-company-header-' + groupKey;
         },
         getAccordionPanelId(groupKey) {
+            console.log('getAccordionPanelId', groupKey, this.containerId);
             return (this.containerId || 'professional-history') + '-company-panel-' + groupKey;
         },
         getRecordCountLabel(count) {
@@ -455,6 +463,15 @@ export default {
             const htmlText = this.stripHtml(metadata.value_as_html);
 
             return htmlText != '' ? htmlText : 'Sem companhia';
+        },
+        getCompanyGroupLink(item) {
+            const metadata = this.getCompanyMetadata(item);
+
+            if (!metadata)
+                return 'Sem companhia';
+
+            if (metadata.value_as_html && metadata.value_as_html != '')
+                return metadata.value_as_html;
         },
         getCompanyGroupKey(item) {
             const label = this.getCompanyGroupLabel(item);
@@ -796,6 +813,16 @@ export default {
 
 .company-accordion__panel {
     padding: 0 0.25rem 1.5rem;
+}
+
+/*
+ * Belt-and-suspenders with v-show: hides the panel purely off the
+ * accordion trigger's aria-expanded state, so the collapse still works
+ * even if something outside this component ends up beating v-show's
+ * inline display style.
+ */
+.company-accordion__heading:has(.company-accordion__trigger[aria-expanded="false"]) + .company-accordion__panel {
+    display: none !important;
 }
 
 /* Timeline */
