@@ -1,0 +1,18 @@
+/*
+ * Roteador de estilos do view mode "Pessoa" (person-viewmode).
+ * Cada grupo de itens relacionados é renderizado por um template diferente
+ * (ver components/src/person-view-mode.vue), então os estilos ficam
+ * separados por template e reunidos aqui.
+ */
+@import url("_template-members.css");
+@import url("_template-conception.css");
+
+.tainacan-item-section--items-related-to-this .related-items-view-more-link,
+.tainacan-item-section--items-related-to-this .wp-block-spacer,
+.tainacan-item-section--items-related-to-this #tainacan-item-items-related-to-this-label {
+    display: none;
+}
+
+.tainacan-item-single-page .tainacan-item-section.tainacan-item-section--items-related-to-this {
+    margin-bottom: 0;
+}

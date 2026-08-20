@@ -33,7 +33,7 @@ COMPONENTE: company-accordion
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 1.15rem 1.5rem 1.15rem 1.25rem;
+  padding: .8rem 1rem;
   background: transparent;
   border: 0;
   font: inherit;
@@ -54,39 +54,54 @@ COMPONENTE: company-accordion
 .company-accordion__trigger::before {
   content: counter(companhia);
   flex: 0 0 auto;
-  width: 30px;
-  height: 30px;
+  width: 24px;
+  height: 24px;
   display: grid;
   place-items: center;
   border-radius: 50%;
   background: var(--paletteColor1);
-  color: #FCFAF4;
+  color: white;
   font-family: var(--fontFamily);
-  font-size: 15px;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1;
 }
 
 /* ---------- nome da companhia ---------- */
-.company-accordion__link {
-  flex: 1 1 auto;
-  min-width: 0;
-  padding-left: 1rem;
-  border-left: 2px solid var(--paletteColor6);
-}
-
-.company-accordion__link a {
-  font-size: 26px;
+.company-accordion__label {
+  font-size: 22px;
   font-weight: 500;
-  line-height: 1.15;
-  letter-spacing: 0.005em;
   color: var(--paletteColor1)!important;
   text-decoration: none;
   text-underline-offset: 4px;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
-.company-accordion__link a:hover,
-.company-accordion__link a:focus-visible { text-decoration: underline; }
+.company-accordion__link a {
+  font-size: 0;              /* esconde o texto original visualmente */
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.company-accordion__link a::after {
+  color: var(--paletteColor6);
+  content: "ver companhia";
+  font-size: 14px;           /* restaura o tamanho só pro texto novo */
+  font-family: inherit;      /* volta pra fonte normal do site nesse pseudo */
+}
+
+.company-accordion__link a::before {
+  content: "";
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23B08A3C' stroke-width='2'%3E%3Cpath d='M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6'/%3E%3Cpath d='M15 3h6v6'/%3E%3Cpath d='M10 14L21 3'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
 
 /* ---------- metadados ---------- */
 .company-accordion__summary {
@@ -196,7 +211,7 @@ COMPONENTE: professional-timeline
   position: relative;
   list-style: none;
   margin: 0;
-  padding: 1.35rem 1.5rem 1.5rem 3.65rem;
+  padding: 1rem 1rem 1rem 40px;
   border-top: 1px solid var(--paletteColor8);
 }
 
@@ -204,10 +219,10 @@ COMPONENTE: professional-timeline
 .professional-timeline::before {
   content: "";
   position: absolute;
-  left: 2.55rem;
-  top: 2.45rem;
-  bottom: 2.45rem;
-  width: 1px;
+  left: 40px;
+  top: 40px;
+  bottom: 40px;
+  width: 2px;
   background: var(--paletteColor1);
   opacity: 0.45;
 }
@@ -218,15 +233,20 @@ COMPONENTE: professional-timeline
   align-items: flex-start;
   gap: 0.9rem;
   padding: 0.85rem 0;
+  margin-left: 1rem;
   border-top: 1px solid var(--paletteColor8);
 }
 
 .professional-timeline__item:first-child { border-top: 0; }
 
-.professional-timeline__marker {
+.professional-timeline__item:before {
+  content: "";
   position: absolute;
-  left: -1.16rem;
-  top: 1.35rem;
+  left: -1.2rem;
+  top: 50%;
+  background: var(--paletteColor1);
+  border-radius: 50%;
+  transform: translateY(-50%);
   width: 11px;
   height: 11px;
   border-radius: 50%;

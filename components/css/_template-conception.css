@@ -1,0 +1,168 @@
+/* ============================================================
+COMPONENTE: conception-accordion
+Cabeçalho com o nome do campo de relacionamento (ex: "Tradutor",
+"Arranjador") como gatilho de um accordion único, cujo painel
+lista os títulos das peças relacionadas. Mesmo comportamento de
+accordion (aria-expanded + height 0 -> auto) usado em
+company-accordion (_template-members.css).
+============================================================ */
+.wp-block-tainacan-related-items .wp-block-group[data-related-collection-id="3415"] .wp-block-tainacan-dynamic-items-list,
+.wp-block-tainacan-related-items .wp-block-group[data-related-collection-id="3922"] .wp-block-tainacan-dynamic-items-list {
+  margin: 0;
+}
+
+.wp-block-tainacan-related-items > h2.conception-shared-group-title ~ .wp-block-group .conception-accordion{
+  border-radius: 0;
+}
+
+.wp-block-tainacan-related-items > h2.conception-shared-group-title + .wp-block-group .conception-accordion {
+  border-radius: 10px 10px 0 0;
+}
+
+.wp-block-tainacan-related-items > h2.conception-shared-group-title ~ .wp-block-group:last-child .conception-accordion{
+  border-radius: 0 0 10px 10px;
+}
+
+.conception-shared-group-title {
+  margin: 4rem auto 2rem;
+}
+
+.conception-accordion {
+  border: 1px solid var(--paletteColor6);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(59, 50, 43, 0.04);
+}
+
+.conception-accordion__heading {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.conception-accordion__trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: transparent;
+  border: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 200ms var(--ease);
+}
+
+.conception-accordion__trigger:hover { background: var(--paletteColor7)!important; }
+
+.conception-accordion__trigger:focus-visible {
+  outline: 2px solid var(--paletteColor1);
+  outline-offset: -3px;
+}
+
+.conception-accordion__trigger[aria-expanded="true"] { background: white; }
+
+.conception-accordion__label {
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--paletteColor1)!important;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* ---------- botão +/− ---------- */
+.conception-accordion__icon {
+  flex: 0 0 auto;
+  position: relative;
+  width: 30px;
+  height: 30px;
+  border: 1.5px solid var(--paletteColor1);
+  border-radius: 50%;
+  transition: background-color 200ms var(--ease);
+}
+
+.conception-accordion__icon::before,
+.conception-accordion__icon::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 13px;
+  height: 1.5px;
+  background: var(--paletteColor1);
+  transform: translate(-50%, -50%);
+  transition: transform 260ms var(--ease), opacity 260ms var(--ease);
+}
+
+.conception-accordion__icon::after { transform: translate(-50%, -50%) rotate(90deg); }
+
+.conception-accordion__trigger[aria-expanded="true"] .conception-accordion__icon::after {
+  transform: translate(-50%, -50%) rotate(0deg);
+  opacity: 0;
+}
+
+/* ---------- painel ---------- */
+.conception-accordion__panel {
+  overflow: hidden;
+  height: 0;
+  background: white;
+  transition: height 300ms var(--ease);
+}
+
+.conception-accordion__panel[aria-expanded="true"] {
+  height: auto;
+  transition: height 300ms var(--ease);
+}
+
+/* ============================================================
+COMPONENTE: conception-list
+Lista de títulos das peças/espetáculos relacionados, dentro do
+painel do accordion acima.
+============================================================ */
+.conception-list {
+  list-style: none;
+  margin: 0;
+  padding: 0.5rem 1rem 0.5rem 2rem;
+}
+
+.conception-list__item {
+  padding: 1rem 1rem 1rem 1.2rem;
+  border-top: 1px solid var(--paletteColor8);
+  position: relative;
+}
+
+.conception-list__item:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  background: var(--paletteColor1);
+  border-radius: 50%;
+  transform: translateY(-50%);
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--paletteColor1);
+  box-shadow: 0 0 0 4px var(--paletteColor8);
+}
+
+.conception-list__item:first-child { border-top: 0; }
+
+.conception-list__title {
+  display: block;
+  font-family: var(--fontFamily);
+  font-size: 19px;
+  color: var(--paletteColor4);
+  text-decoration: none;
+}
+
+a.conception-list__title:hover,
+a.conception-list__title:focus-visible {
+  color: var(--paletteColor1);
+}
+
+.conception-list__empty {
+  padding: 0.5rem 0;
+}

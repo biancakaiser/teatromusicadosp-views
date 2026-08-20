@@ -53,6 +53,9 @@
                         :aria-controls="company.panelId"
                         @click="toggleCompanyGroup(company.key)">
                             <span
+                                v-if="company.label"
+                                class="company-accordion__label">{{ company.label }}</span>
+                            <span
                                 v-if="company.link"
                                 class="company-accordion__link"
                                 v-html="company.link" />
@@ -91,23 +94,9 @@
                                     class="professional-timeline__hook faceted-search-hook-item-before"
                                     v-html="getBeforeHook(record.item)" />
 
-                                <span
-                                    class="professional-timeline__marker"
-                                    aria-hidden="true" />
-
                                 <div class="professional-timeline__content">
                                     <div class="professional-timeline__meta">
                                         <span class="professional-timeline__dates">{{ record.dateRangeLabel || 'Data não informada' }}</span>
-                                        <button
-                                            v-if="isSlideshowViewModeEnabled"
-                                            type="button"
-                                            class="professional-timeline__slideshow-trigger"
-                                            :aria-label="$i18n.get('label_see_on_fullscreen')"
-                                            @click="starSlideshowFromHere(getItemGlobalIndex(record.item, record.index))">
-                                            <i
-                                                class="tainacan-icon tainacan-icon-viewgallery tainacan-icon-1-125em"
-                                                aria-hidden="true" />
-                                        </button>
                                     </div>
 
                                     <div class="professional-timeline__body">
@@ -157,11 +146,10 @@
 import qs from 'qs';
 
 export default {
-    name: 'CompanyViewMode',
+    name: 'MembersTemplate',
     data() {
         return {
             activeCompanyGroupKey: null,
-            isSlideshowViewModeEnabled: false
         }
     },
     props: {
@@ -202,20 +190,22 @@ export default {
          * Every displayed metadatum other than the company one. Used to locate the
          * date and cast (compound) columns without repeating the filter each time.
          */
-        otherMetadataColumns() {
+        metadataColumns() {
             return (this.displayedMetadata || []).filter(column => column && column !== this.companyColumn);
         },
         dateColumns() {
-            return this.otherMetadataColumns.filter(column => column.metadata_type_object && column.metadata_type_object.primitive_type == 'date');
+            return this.metadataColumns.filter(column => column.metadata_type_object && column.metadata_type_object.primitive_type == 'date');
         },
         initialDateColumn() {
-            return this.findColumnByPattern(this.dateColumns, /inici/i) || this.dateColumns[0] || false;
+            const initialDate = this.findColumnByPattern(this.dateColumns, /inicial/i) || this.dateColumns[0] || false;
+            return initialDate;
         },
         finalDateColumn() {
-            return this.findColumnByPattern(this.dateColumns, /final|term|fim/i) || this.dateColumns[1] || this.dateColumns[0] || false;
+            const finalDate = this.findColumnByPattern(this.dateColumns, /final/i) || this.dateColumns[0] || false;
+            return finalDate;
         },
         castColumn() {
-            const compoundColumns = this.otherMetadataColumns.filter(column => column.metadata_type_object && column.metadata_type_object.primitive_type == 'compound');
+            const compoundColumns = this.metadataColumns.filter(column => column.metadata_type_object && column.metadata_type_object.primitive_type == 'compound');
             return this.findColumnByPattern(compoundColumns, /elenco/i) || compoundColumns[0] || false;
         },
         /*
@@ -243,12 +233,13 @@ export default {
 
             this.visibleItems.forEach(item => {
                 const key = this.getCompanyGroupKey(item);
+                const metadata = this.getCompanyMetadata(item);
 
                 if (!groupsByKey[key]) {
                     groupsByKey[key] = {
                         key: key,
-                        label: this.getCompanyGroupLabel(item),
-                        link: this.getCompanyGroupLink(item),
+                        label: this.getMetadataValue(metadata, "string"),
+                        link: this.getMetadataValue(metadata, "html"),
                         items: []
                     };
                     groups.push(groupsByKey[key]);
@@ -280,7 +271,8 @@ export default {
          */
         companyAccordionItems() {
             return this.groupedItemsByCompany.map(group => {
-                const records = group.items.map((item, index) => ({
+                const sortedItems = this.getItemsSortedByFinalDate(group.items);
+                const records = sortedItems.map((item, index) => ({
                     item,
                     index,
                     dateRangeLabel: this.getItemDateRangeLabel(item),
@@ -300,9 +292,6 @@ export default {
                 };
             });
         },
-    },
-    mounted() {
-        this.isSlideshowViewModeEnabled = (this.enabledViewModes && Array.isArray(this.enabledViewModes)) ? (this.enabledViewModes.findIndex((viewMode) => viewMode == 'slideshow') >= 0) : false;
     },
     watch: {
         groupedItemsByCompany: {
@@ -371,10 +360,6 @@ export default {
             }
             return itemUrl;
         },
-        starSlideshowFromHere(index) {
-            if ( this.$router && this.$route && this.$route.query )
-                this.$router.replace({ query: {...this.$route.query, ...{'slideshow-from': index } }}).catch(() => {});
-        },
         getPosInSet(index) {
             if ( !isNaN(Number(this.queries.paged)) && !isNaN(Number(this.queries.perpage)) )
                 return ((Number(this.queries.paged) - 1) * Number(this.queries.perpage)) + index + 1;
@@ -384,14 +369,12 @@ export default {
             return itemIndex >= 0 ? itemIndex : fallbackIndex;
         },
         toggleCompanyGroup(groupKey) {
-            console.log('toggleCompanyGroup', groupKey, this.activeCompanyGroupKey);
             this.activeCompanyGroupKey = this.activeCompanyGroupKey == groupKey ? null : groupKey;
         },
         getAccordionHeaderId(groupKey) {
             return (this.containerId || 'professional-history') + '-company-header-' + groupKey;
         },
         getAccordionPanelId(groupKey) {
-            console.log('getAccordionPanelId', groupKey, this.containerId);
             return (this.containerId || 'professional-history') + '-company-panel-' + groupKey;
         },
         getRecordCountLabel(count) {
@@ -451,30 +434,24 @@ export default {
                 return metadataName == 'companhia';
             }) || false;
         },
-        getCompanyGroupLabel(item) {
-            const metadata = this.getCompanyMetadata(item);
-
+        getMetadataValue(metadata, valueType) {
             if (!metadata)
-                return 'Sem companhia';
+                return 'Sem Metadados';
 
-            if (metadata.value_as_string && metadata.value_as_string.toString().trim() != '')
-                return metadata.value_as_string.toString().trim();
+            if (valueType == "string"){
+                if (metadata.value_as_string && metadata.value_as_string != '')
+                    return metadata.value_as_string;
+            }
 
-            const htmlText = this.stripHtml(metadata.value_as_html);
+            if (valueType == "html"){
+                if (metadata.value_as_html && metadata.value_as_html != '')
+                    return metadata.value_as_html;
+            }
 
-            return htmlText != '' ? htmlText : 'Sem companhia';
-        },
-        getCompanyGroupLink(item) {
-            const metadata = this.getCompanyMetadata(item);
-
-            if (!metadata)
-                return 'Sem companhia';
-
-            if (metadata.value_as_html && metadata.value_as_html != '')
-                return metadata.value_as_html;
+            return 'Valor não encontrado';
         },
         getCompanyGroupKey(item) {
-            const label = this.getCompanyGroupLabel(item);
+            const label = this.getMetadataValue(this.getCompanyMetadata(item), "string");
             let normalizedLabel = label
                 .toString()
                 .trim()
@@ -484,26 +461,11 @@ export default {
                 normalizedLabel = normalizedLabel.normalize('NFD');
 
             normalizedLabel = normalizedLabel
-                .replace(/[\u0300-\u036f]/g, '')
+                .replace(new RegExp('[\\u0300-\\u036f]', 'g'), '')
                 .replace(/[^a-z0-9]+/g, '-')
                 .replace(/^-|-$/g, '');
 
             return normalizedLabel != '' ? normalizedLabel : 'sem-companhia';
-        },
-        getFormattedDate(item, column) {
-            const metadata = this.getColumnMetadata(item, column);
-            if (!metadata)
-                return '';
-
-            // Date metadata already arrives localized from the API (date_i18n / value_as_string),
-            // so there is no need for a client-side date formatting library.
-            if (metadata.date_i18n)
-                return metadata.date_i18n;
-
-            if (metadata.value_as_string)
-                return metadata.value_as_string;
-
-            return this.stripHtml(metadata.value_as_html);
         },
         getSortableDateTimestamp(item, column) {
             const metadata = this.getColumnMetadata(item, column);
@@ -518,13 +480,39 @@ export default {
             return isNaN(timestamp) ? null : timestamp;
         },
         getItemDateRangeLabel(item) {
-            const start = this.getFormattedDate(item, this.initialDateColumn);
-            const end = this.getFormattedDate(item, this.finalDateColumn);
+            const start = this.getMetadataValue(this.getColumnMetadata(item, this.initialDateColumn), "string");
+            const end = this.getMetadataValue(this.getColumnMetadata(item, this.finalDateColumn), "string");
 
             if (start && end && start != end)
                 return start + ' – ' + end;
 
             return start || end || '';
+        },
+        /*
+         * Orders a company's records chronologically (oldest final date first),
+         * so the timeline <li>s render from earliest to most recent period.
+         * Falls back to the initial date column when the final date is missing,
+         * and keeps undated records at the end, in their original order.
+         */
+        getItemsSortedByFinalDate(items) {
+            return (items || [])
+                .map((item, index) => {
+                    let timestamp = this.getSortableDateTimestamp(item, this.finalDateColumn);
+                    if (timestamp == null)
+                        timestamp = this.getSortableDateTimestamp(item, this.initialDateColumn);
+                    return { item, index, timestamp };
+                })
+                .sort((a, b) => {
+                    if (a.timestamp == null && b.timestamp == null)
+                        return a.index - b.index;
+                    if (a.timestamp == null)
+                        return 1;
+                    if (b.timestamp == null)
+                        return -1;
+
+                    return a.timestamp - b.timestamp;
+                })
+                .map(entry => entry.item);
         },
         getGroupDateRangeLabel(items) {
             const datedValues = [];
@@ -532,7 +520,7 @@ export default {
             (items || []).forEach(item => {
                 [this.initialDateColumn, this.finalDateColumn].forEach(column => {
                     const timestamp = this.getSortableDateTimestamp(item, column);
-                    const label = this.getFormattedDate(item, column);
+                    const label = this.getMetadataValue(this.getColumnMetadata(item, column), "string");
                     if (timestamp != null && label)
                         datedValues.push({ timestamp, label });
                 });
@@ -634,410 +622,3 @@ export default {
     }
 }
 </script>
-
-<style scoped>
-.professional-history-wrapper {
-    --ph-color-bg: #FBF6EC;
-    --ph-color-surface: #F5EEDF;
-    --ph-color-primary: #6B1626;
-    --ph-color-primary-strong: #4E0F1B;
-    --ph-color-accent: #A9863F;
-    --ph-color-text: #372417;
-    --ph-color-text-muted: #6B5A4C;
-    --ph-color-border: rgba(55, 36, 23, 0.16);
-    --ph-radius: 2px;
-    --ph-font-serif: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Times New Roman', serif;
-    --ph-font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-
-    color: var(--ph-color-text);
-}
-
-.sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-}
-
-.professional-history {
-    background-color: var(--ph-color-bg);
-    font-family: var(--ph-font-sans);
-    padding: 2rem clamp(1rem, 4vw, 2.5rem);
-}
-
-.professional-history__empty {
-    padding: 2rem;
-    text-align: center;
-}
-
-/* Header */
-.professional-history__header {
-    max-width: 46rem;
-    margin: 0 0 2rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--ph-color-border);
-}
-
-.professional-history__eyebrow {
-    font-family: var(--ph-font-sans);
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--ph-color-accent);
-    margin: 0 0 0.5rem;
-}
-
-.professional-history__title {
-    font-family: var(--ph-font-serif);
-    font-size: clamp(1.5rem, 3vw, 2rem);
-    font-weight: 400;
-    color: var(--ph-color-primary-strong);
-    margin: 0 0 0.6rem;
-}
-
-.professional-history__description {
-    font-size: 0.95rem;
-    color: var(--ph-color-text-muted);
-    margin: 0 0 0.75rem;
-    line-height: 1.5;
-}
-
-.professional-history__summary {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--ph-color-primary);
-    margin: 0;
-}
-
-/* Accordion */
-.company-accordion__item {
-    border-bottom: 1px solid var(--ph-color-border);
-}
-
-.company-accordion__item:first-child {
-    border-top: 1px solid var(--ph-color-border);
-}
-
-.company-accordion__heading {
-    margin: 0;
-}
-
-.company-accordion__trigger {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    width: 100%;
-    background: none;
-    border: 0;
-    cursor: pointer;
-    text-align: start;
-    padding: 1.1rem 0.25rem;
-    font-family: inherit;
-    color: inherit;
-}
-
-.company-accordion__trigger:hover .company-accordion__title {
-    color: var(--ph-color-primary);
-}
-
-.company-accordion__trigger:focus-visible {
-    outline: 2px solid var(--ph-color-accent);
-    outline-offset: 2px;
-}
-
-.company-accordion__title {
-    font-family: var(--ph-font-serif);
-    font-size: 1.15rem;
-    color: var(--ph-color-primary-strong);
-    flex: 1 1 auto;
-    min-width: 0;
-}
-
-.company-accordion__summary {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.15rem;
-    font-size: 0.75rem;
-    color: var(--ph-color-text-muted);
-    flex: 0 0 auto;
-    text-align: end;
-}
-
-.company-accordion__count {
-    font-weight: 600;
-    color: var(--ph-color-accent);
-}
-
-.company-accordion__icon {
-    position: relative;
-    flex: 0 0 auto;
-    width: 0.85rem;
-    height: 0.85rem;
-}
-
-.company-accordion__icon::before,
-.company-accordion__icon::after {
-    content: '';
-    position: absolute;
-    background-color: var(--ph-color-primary);
-    transition: transform 0.15s ease;
-}
-
-.company-accordion__icon::before {
-    top: 50%;
-    left: 0;
-    width: 100%;
-    height: 1px;
-    transform: translateY(-50%);
-}
-
-.company-accordion__icon::after {
-    left: 50%;
-    top: 0;
-    width: 1px;
-    height: 100%;
-    transform: translateX(-50%);
-}
-
-.company-accordion__trigger[aria-expanded="true"] .company-accordion__icon::after {
-    transform: translateX(-50%) rotate(90deg);
-    opacity: 0;
-}
-
-.company-accordion__panel {
-    padding: 0 0.25rem 1.5rem;
-}
-
-/*
- * Belt-and-suspenders with v-show: hides the panel purely off the
- * accordion trigger's aria-expanded state, so the collapse still works
- * even if something outside this component ends up beating v-show's
- * inline display style.
- */
-.company-accordion__heading:has(.company-accordion__trigger[aria-expanded="false"]) + .company-accordion__panel {
-    display: none !important;
-}
-
-/* Timeline */
-.professional-timeline {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    border-inline-start: 1px solid var(--ph-color-border);
-}
-
-.professional-timeline__item {
-    position: relative;
-    display: flex;
-    gap: 0.9rem;
-    padding: 0 0 1.5rem 1.25rem;
-}
-
-.professional-timeline__item:last-child {
-    padding-bottom: 0;
-}
-
-.professional-timeline__marker {
-    position: absolute;
-    left: -4.5px;
-    top: 0.3rem;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: var(--ph-color-accent);
-}
-
-.professional-timeline__content {
-    flex: 1 1 auto;
-    min-width: 0;
-}
-
-.professional-timeline__meta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    margin-bottom: 0.4rem;
-}
-
-.professional-timeline__dates {
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    color: var(--ph-color-accent);
-}
-
-.professional-timeline__slideshow-trigger {
-    background: none;
-    border: 0;
-    padding: 0.15rem;
-    line-height: 1;
-    color: var(--ph-color-text-muted);
-    cursor: pointer;
-}
-
-.professional-timeline__slideshow-trigger:hover {
-    color: var(--ph-color-primary);
-}
-
-.professional-timeline__body {
-    display: flex;
-    gap: 1rem;
-    align-items: flex-start;
-}
-
-.professional-timeline__thumbnail {
-    flex: 0 0 auto;
-    width: 4.5rem;
-    height: 4.5rem;
-    object-fit: cover;
-    border-radius: var(--ph-radius);
-    border: 1px solid var(--ph-color-border);
-    background-color: var(--ph-color-surface);
-}
-
-.professional-timeline__info {
-    min-width: 0;
-    flex: 1 1 auto;
-}
-
-.professional-timeline__title {
-    display: inline-block;
-    font-family: var(--ph-font-serif);
-    font-size: 1.05rem;
-    color: var(--ph-color-text);
-    text-decoration: none;
-    margin-bottom: 0.4rem;
-}
-
-.professional-timeline__title:hover {
-    color: var(--ph-color-primary);
-    text-decoration: underline;
-}
-
-/* Cast list */
-.cast-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem 1rem;
-}
-
-.cast-list__item {
-    display: flex;
-    align-items: baseline;
-    gap: 0.35rem;
-    font-size: 0.85rem;
-}
-
-.cast-list__person {
-    color: var(--ph-color-text);
-    font-weight: 600;
-}
-
-.cast-list__person :deep(a) {
-    color: inherit;
-    text-decoration: none;
-    border-bottom: 1px solid var(--ph-color-accent);
-}
-
-.cast-list__person--placeholder {
-    font-style: italic;
-    font-weight: 400;
-    color: var(--ph-color-text-muted);
-}
-
-.cast-list__role {
-    color: var(--ph-color-text-muted);
-    font-size: 0.78rem;
-}
-
-.cast-list__role::before {
-    content: '·';
-    margin-inline-end: 0.35rem;
-    color: var(--ph-color-border);
-}
-
-.cast-list__empty {
-    font-size: 0.8rem;
-    font-style: italic;
-    color: var(--ph-color-text-muted);
-    margin: 0;
-}
-
-/* Skeleton loading */
-.skeleton-bar {
-    background-color: var(--ph-color-surface);
-    border-radius: var(--ph-radius);
-    animation: professional-history-pulse 1.2s ease-in-out infinite;
-}
-
-.skeleton-bar--eyebrow {
-    width: 6rem;
-    height: 0.7rem;
-    margin-bottom: 0.6rem;
-}
-
-.skeleton-bar--title {
-    width: 60%;
-    max-width: 20rem;
-    height: 1.5rem;
-}
-
-.company-accordion__item--skeleton {
-    padding: 1.1rem 0.25rem;
-}
-
-.skeleton-bar--trigger {
-    width: 100%;
-    height: 1.5rem;
-}
-
-@keyframes professional-history-pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.45; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .company-accordion__icon::before,
-    .company-accordion__icon::after {
-        transition: none;
-    }
-
-    .skeleton-bar {
-        animation: none;
-    }
-}
-
-/* Responsive */
-@media (max-width: 640px) {
-    .company-accordion__trigger {
-        flex-wrap: wrap;
-    }
-
-    .company-accordion__summary {
-        align-items: flex-start;
-        text-align: start;
-        flex-basis: 100%;
-    }
-
-    .professional-timeline__body {
-        flex-direction: column;
-    }
-
-    .professional-timeline__thumbnail {
-        width: 100%;
-        height: auto;
-        max-height: 12rem;
-    }
-}
-</style>

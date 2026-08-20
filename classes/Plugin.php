@@ -6,7 +6,8 @@ use TeatroMusicadoSP\Customizations\Contracts\Module;
 use TeatroMusicadoSP\Customizations\Traits\Singleton;
 use TeatroMusicadoSP\Customizations\MetadataTypes\Metadatas;
 use TeatroMusicadoSP\Customizations\Blocks\Bibliographic;
-use TeatroMusicadoSP\Customizations\ViewModes\Companies;
+use TeatroMusicadoSP\Customizations\ViewModes\Person;
+use TeatroMusicadoSP\Customizations\RelatedItems\PessoaRelatedItemsOrder;
 
 defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 
@@ -50,7 +51,8 @@ final class Plugin
         $modules = array(
             Metadatas::get_instance(),
             Bibliographic::get_instance(),
-            Companies::get_instance()
+            Person::get_instance(),
+            PessoaRelatedItemsOrder::get_instance()
         );
 
         foreach ($modules as $module) {

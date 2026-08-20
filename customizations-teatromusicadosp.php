@@ -54,11 +54,14 @@ add_action(
 );
     
 require_once TMSP_CUSTOMIZATIONS_PATH
-    . 'classes/view-modes/companies.php';
+    . 'classes/view-modes/person.php';
 
 require_once TMSP_CUSTOMIZATIONS_PATH
     . 'classes/blocks/bibliographic.php';
-    
+
+require_once TMSP_CUSTOMIZATIONS_PATH
+    . 'classes/related-items/pessoa-related-items-order.php';
+
 require_once TMSP_CUSTOMIZATIONS_PATH
     . 'classes/Plugin.php';
 

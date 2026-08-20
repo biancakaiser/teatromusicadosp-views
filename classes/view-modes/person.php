@@ -8,7 +8,7 @@ use TeatroMusicadoSP\Customizations\Traits\Singleton;
 // Evita acesso direto ao arquivo
 defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 
-class Companies implements Module
+class Person implements Module
 {
     use Singleton;
 
@@ -16,16 +16,16 @@ class Companies implements Module
     public $componentsFolderPath = TMSP_CUSTOMIZATIONS_PATH . 'components/';
 
     public function register(): void {
-        add_action( 'tainacan-register-vuejs-component', array( $this, 'register_company_viewmode_components' ) );
-        add_action( 'wp_print_scripts', array($this, 'company_viewmode_components_enqueue_styles') );
+        add_action( 'tainacan-register-vuejs-component', array( $this, 'register_person_viewmode_components' ) );
+        add_action( 'wp_print_scripts', array($this, 'person_viewmode_components_enqueue_styles') );
     }
- 
-    function register_company_viewmode_components($helper) {
+
+    function register_person_viewmode_components($helper) {
 
         if ( function_exists( 'tainacan_register_view_mode' ) ) {
 
             // Registering the Vue Component
-            $handle = 'teatro-companies-viewmode';
+            $handle = 'teatro-person-viewmode';
 
             // While `npm run dev` (webpack-dev-server) is running, load the bundle straight from
             // it instead of the built file, so edits hot-reload. Enable by adding
@@ -35,24 +35,22 @@ class Companies implements Module
                 : $this->componentsFolderURL . '/build/components.bundle.js';
 
             $helper->register_vuejs_component($handle, $component_script_url, [ 'public' => true, 'deps' => ['wp-i18n'] ], null, true);
-            
+
             // Registering the view mode
-            tainacan_register_view_mode('companies-viewmode', [
-                'label' 				=> 'Companhias',
-                'description' 			=> __('Companhias view mode.', 'customizations-teatromusicadosp'),
+            tainacan_register_view_mode('person-viewmode', [
+                'label' 				=> 'Pessoa',
+                'description' 			=> __('Visualização de itens relacionados na página de item da coleção Pessoa', 'customizations-teatromusicadosp'),
                 'icon' 					=> '<span class="icon"><i><svg fill="var(--tainacan-info-color, #555758)" xmlns="http://www.w3.org/2000/svg" height="24" width="24"><path d="M8.492 6.074h7.016v11.852H8.492zM4.943 7.477h2.806v9.046H4.943zM16.251 7.477h2.807v9.046H16.25zM19.8 8.442h1.884v7.116h-1.883zM2.316 8.442h1.883v7.116H2.316z"/></svg></i></span>',
                 'type' 					=> 'component',
-                'component' 			=> 'view-mode-companies',
+                'component' 			=> 'view-mode-person',
                 'dynamic_metadata' 		=> true,
                 'implements_skeleton' 	=> true
             ]);
         }
     }
 
-    function company_viewmode_components_enqueue_styles() {
-	
+    function person_viewmode_components_enqueue_styles() {
         // Enqueue template view mode styles
-        wp_enqueue_style( 'tainacan-extra-viewmodes-view-mode-companies', $this->componentsFolderURL . '/css/_view-mode-companies.css', [], TMSP_CUSTOMIZATIONS_VERSION );
-
+        wp_enqueue_style( 'tainacan-extra-viewmodes-view-mode-person', $this->componentsFolderURL . '/css/_view-mode-person.css', [], TMSP_CUSTOMIZATIONS_VERSION );
     }
 }
