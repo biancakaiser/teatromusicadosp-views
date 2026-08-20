@@ -3,6 +3,32 @@
 }
 
 /* ============================================================
+COMPONENTE: skeleton-bar
+Placeholder animado usado pelos estados de loading de
+professional-history (abaixo) e conception-template
+(_template-conception.css). Classe única e compartilhada entre
+os dois templates, por isso fica aqui, junto de :root.
+============================================================ */
+@keyframes skeleton-shimmer {
+  0% { opacity: 1; }
+  50% { opacity: 0.45; }
+  100% { opacity: 1; }
+}
+
+.skeleton-bar {
+  display: block;
+  border-radius: 4px;
+  background: var(--paletteColor8);
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+.skeleton-bar--eyebrow { width: 140px; height: 14px; margin-bottom: 0.6rem; }
+.skeleton-bar--title { width: min(320px, 60%); height: 26px; }
+.skeleton-bar--trigger { width: 70%; height: 20px; }
+
+.company-accordion__item--skeleton { padding: 0.8rem 1rem; }
+
+/* ============================================================
 COMPONENTE: company-accordion
 ============================================================ */
 .company-accordion {
@@ -337,4 +363,5 @@ RESPONSIVO
 
 @media (prefers-reduced-motion: reduce) {
   * { transition-duration: 1ms !important; }
+  .skeleton-bar { animation-duration: 1ms !important; }
 }

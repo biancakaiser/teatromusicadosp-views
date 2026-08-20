@@ -1,0 +1,381 @@
+.company-view-mode {
+    margin: 0;
+}
+
+:root {
+  --ease: cubic-bezier(0.32, 0.72, 0.28, 1);
+}
+
+/* ============================================================
+COMPONENTE: skeleton-bar
+Placeholder animado usado pelo estado de loading do cast-history
+abaixo. Duplicado de _template-members.css porque este stylesheet
+é carregado sozinho na página de item da Companhia (não importa
+_view-mode-person.css/_template-members.css).
+============================================================ */
+@keyframes skeleton-shimmer {
+  0% { opacity: 1; }
+  50% { opacity: 0.45; }
+  100% { opacity: 1; }
+}
+
+.skeleton-bar {
+  display: block;
+  border-radius: 4px;
+  background: var(--paletteColor8);
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+.skeleton-bar--eyebrow { width: 140px; height: 14px; margin-bottom: 0.6rem; }
+.skeleton-bar--title { width: min(320px, 60%); height: 26px; }
+.skeleton-bar--trigger { width: 70%; height: 20px; }
+
+/* ============================================================
+COMPONENTE: cast-history
+============================================================ */
+.cast-history__header {
+  margin-bottom: 1rem;
+}
+
+.cast-history__title {
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--paletteColor1)!important;
+  margin: 0 0 0.3rem;
+}
+
+.cast-history__summary {
+  font-size: 14px;
+  color: var(--paletteColor6);
+  margin: 0;
+}
+
+.cast-history__empty {
+  color: var(--paletteColor4);
+}
+
+/* ============================================================
+COMPONENTE: period-accordion (1º nível — timeline por intervalo de datas)
+============================================================ */
+.period-accordion {
+  position: relative;
+  padding-left: 32px;
+  border-radius: 10px;
+  overflow: visible;
+}
+
+/* linha vertical flutuante da timeline, atravessando todo o grupo */
+.period-accordion::before {
+  content: "";
+  position: absolute;
+  left: 13px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--paletteColor1);
+  opacity: 0.4;
+}
+
+.period-accordion__item {
+  border-top: 1px solid var(--paletteColor6);
+}
+
+.period-accordion__item:first-child { border-top: 0; }
+
+.period-accordion__item--skeleton { padding: 0.8rem 1rem; }
+
+.period-accordion__heading {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.period-accordion__trigger {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: .8rem 1rem;
+  background: none;
+  border: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 200ms var(--ease);
+}
+
+/* bolinha da timeline, alinhada com a linha vertical */
+.period-accordion__trigger::before {
+  content: "";
+  position: absolute;
+  left: -24px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--paletteColor1);
+}
+
+.period-accordion__trigger:hover { background: rgba(0, 0, 0, 0.16)!important; }
+
+.period-accordion__trigger:focus-visible {
+  outline: 2px solid var(--paletteColor1);
+  outline-offset: -3px;
+}
+
+/* .period-accordion__trigger[aria-expanded="true"] { background: rgba(0, 0, 0, 0.1); } */
+
+.period-accordion__label {
+  font-size: 19px;
+  font-weight: 500;
+  color: var(--paletteColor1)!important;
+  flex: 1 1 auto;
+  min-width: 0;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.period-accordion__count {
+  flex: 0 0 auto;
+  font-size: 14px;
+  color: var(--paletteColor1);
+  white-space: nowrap;
+}
+
+.period-accordion__icon {
+  flex: 0 0 auto;
+  position: relative;
+  width: 30px;
+  height: 30px;
+  border: 1.5px solid var(--paletteColor1);
+  border-radius: 50%;
+  transition: background-color 200ms var(--ease);
+}
+
+.period-accordion__icon::before,
+.period-accordion__icon::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 13px;
+  height: 1.5px;
+  background: var(--paletteColor1);
+  transform: translate(-50%, -50%);
+  transition: transform 260ms var(--ease), opacity 260ms var(--ease);
+}
+
+.period-accordion__icon::after { transform: translate(-50%, -50%) rotate(90deg); }
+
+.period-accordion__trigger[aria-expanded="true"] .period-accordion__icon::after {
+  transform: translate(-50%, -50%) rotate(0deg);
+  opacity: 0;
+}
+
+.period-accordion__panel {
+  overflow: hidden;
+  height: 0;
+  background: transparent;
+  transition: height 300ms var(--ease);
+}
+
+.period-accordion__panel[aria-expanded="true"] {
+  height: auto;
+  padding: 1rem 2rem;
+}
+
+/* ============================================================
+COMPONENTE: role-accordion (2º nível — por Função)
+============================================================ */
+
+.role-accordion__item {
+    border: 1px solid var(--paletteColor8);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.role-accordion__item:first-child { border-top: 0; }
+
+.role-accordion__heading {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.role-accordion__trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: .6rem .9rem;
+  background: #d6d3c2;
+  border: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 200ms var(--ease), color 200ms var(--ease);
+}
+
+.role-accordion__trigger:hover,
+.role-accordion__trigger:hover .role-accordion__label,
+.role-accordion__trigger:hover .role-accordion__count {
+  background: var(--paletteColor5)!important;
+  color: white;
+}
+
+.role-accordion__trigger:focus-visible {
+  outline: 2px solid var(--paletteColor1);
+  outline-offset: -3px;
+}
+
+.role-accordion__trigger[aria-expanded="true"] { background: var(--paletteColor5); }
+
+.role-accordion__trigger[aria-expanded="true"] .role-accordion__label,
+.role-accordion__trigger[aria-expanded="true"] .role-accordion__count { 
+    color: white; 
+}
+
+.role-accordion__trigger:hover .role-accordion__icon,
+.role-accordion__trigger[aria-expanded="true"] .role-accordion__icon { 
+    border-color: white; 
+}
+
+.role-accordion__trigger:hover .role-accordion__icon:before,
+.role-accordion__trigger:hover .role-accordion__icon:after,
+.role-accordion__trigger[aria-expanded="true"] .role-accordion__icon:before,
+.role-accordion__trigger[aria-expanded="true"] .role-accordion__icon:after {
+    background: white;
+}
+
+.role-accordion__label {
+  font-family: var(--fontFamily);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--paletteColor4);
+  flex: 1 1 auto;
+  min-width: 0;
+  transition: color 200ms var(--ease);
+}
+
+.role-accordion__count {
+  flex: 0 0 auto;
+  font-size: 13px;
+  color: var(--paletteColor4);
+  white-space: nowrap;
+  transition: color 200ms var(--ease);
+}
+
+.role-accordion__icon {
+  flex: 0 0 auto;
+  position: relative;
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid var(--paletteColor4);
+  border-radius: 50%;
+  transition: background-color 200ms var(--ease);
+}
+
+.role-accordion__icon::before,
+.role-accordion__icon::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 1.5px;
+  background: var(--paletteColor4);
+  transform: translate(-50%, -50%);
+  transition: transform 260ms var(--ease), opacity 260ms var(--ease);
+}
+
+.role-accordion__icon::after { transform: translate(-50%, -50%) rotate(90deg); }
+
+.role-accordion__trigger[aria-expanded="true"] .role-accordion__icon::after {
+  transform: translate(-50%, -50%) rotate(0deg);
+  opacity: 0;
+}
+
+.role-accordion__panel {
+  overflow: hidden;
+  height: 0;
+  background: white;
+  transition: height 300ms var(--ease);
+}
+
+.role-accordion__panel[aria-expanded="true"] {
+  height: auto;
+  padding: 0.7rem 0.9rem;
+}
+
+.role-accordion__empty {
+  color: var(--paletteColor6);
+  font-style: italic;
+  margin: 0.5rem 0 0;
+}
+
+/* ============================================================
+COMPONENTE: person-list (3º nível — pessoas dentro de uma Função)
+============================================================ */
+.person-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  row-gap: 0.4rem;
+}
+
+.person-list__item {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 0.9rem;
+}
+
+.person-list__item:first-child { padding-left: 0; }
+
+.person-list__item:not(:first-child) {
+  border-left: 2px solid var(--paletteColor6);
+}
+
+.person-list__name a {
+  font-family: var(--fontFamily);
+  font-size: 16px;
+  color: var(--paletteColor4);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 160ms var(--ease), color 160ms var(--ease);
+}
+
+.person-list__name a:hover,
+.person-list__name a:focus-visible {
+  color: var(--paletteColor1);
+  border-bottom-color: var(--paletteColor6);
+}
+
+.person-list__name--placeholder {
+  font-family: var(--fontFamily);
+  font-size: 16px;
+  color: var(--paletteColor6);
+  font-style: italic;
+}
+
+/* ============================================================
+RESPONSIVO
+============================================================ */
+@media (max-width: 620px) {
+  .period-accordion__trigger,
+  .role-accordion__trigger { flex-wrap: wrap; row-gap: 0.5rem; }
+  .period-accordion__count,
+  .role-accordion__count { flex: 1 1 100%; white-space: normal; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition-duration: 1ms !important; }
+}

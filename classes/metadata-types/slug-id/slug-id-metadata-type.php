@@ -1,5 +1,7 @@
 <?php
 
+namespace TeatroMusicadoSP\Customizations\MetadataTypes\SlugId;
+
 /**
  * Class SlugIdMetadataType
  * This is inside "slug-id/metadata-type.php"
@@ -14,7 +16,7 @@ class SlugIdMetadataType extends \Tainacan\Metadata_Types\Metadata_Type {
         $this->set_name( __('ID Numérico', 'slug-id-metadata-type') );
         $this->set_description( __('A numeric value, integer or float', 'slug-id-metadata-type') );
         $this->set_primitive_type(['float']);
-        $this->set_component('tainacan-metadata-type-custom');
+        $this->set_component('metadata-type-slug-id-component');
         $this->set_preview_template('
             <div>
                 <div class="control is-clearfix">
@@ -24,7 +26,7 @@ class SlugIdMetadataType extends \Tainacan\Metadata_Types\Metadata_Type {
         ');
 
         // For custom Metadata Type Options
-        $this->set_form_component('tainacan-metadata-form-type-custom');
+        $this->set_form_component('metadata-type-slug-id-form-component');
         $this->set_default_options([
             'step' => 1
         ]);

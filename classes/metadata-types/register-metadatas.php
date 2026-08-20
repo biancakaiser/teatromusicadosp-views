@@ -8,7 +8,7 @@ use TeatroMusicadoSP\Customizations\Traits\Singleton;
 // Evita acesso direto ao arquivo
 defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 
-class Metadatas implements Module
+class RegisterMetadatas implements Module
 {
     use Singleton;
 
@@ -23,19 +23,19 @@ class Metadatas implements Module
 
     function register_metadata_type( $helper ) {
         // Registering the Class
-        require_once( $this->metadataFolderPath . 'slug-id/metadata-type.php' );
+        require_once( $this->metadataFolderPath . 'slug-id/slug-id-metadata-type.php' );
 
         // Registering the Vue Component
-        $handle = 'slug-id-metadata-type';
-        $class_name = 'SlugIdMetadataType';
-        $metadata_script_url = $this->metadataFolderURL . 'slug-id/metadata-type.js';
+        $handle = 'metadata-type-slug-id-component';
+        $class_name = \TeatroMusicadoSP\Customizations\MetadataTypes\SlugId\SlugIdMetadataType::class;
+        $metadata_script_url = $this->metadataFolderURL . 'slug-id/slug-id-metadata-type.js';
         $helper->register_metadata_type($handle, $class_name, $metadata_script_url);
 	}
 
     function register_metadata_type_form( $helper ) {
         // Registering the Vue Component for the Metadata Options Form
-        $handle2 = 'slug-id-metadata-type-form';
-        $component_script_url = $this->metadataFolderURL . 'slug-id/metadata-type-form.js';
+        $handle2 = 'metadata-type-slug-id-form-component';
+        $component_script_url = $this->metadataFolderURL . 'slug-id/slug-id-metadata-type-form.js';
         $helper->register_vuejs_component($handle2, $component_script_url);
     }
  

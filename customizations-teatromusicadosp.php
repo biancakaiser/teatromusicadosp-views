@@ -38,7 +38,7 @@ require_once TMSP_CUSTOMIZATIONS_PATH
     . 'classes/traits/singleton.php';
 
 require_once TMSP_CUSTOMIZATIONS_PATH
-    . 'classes/metadata-types/metadatas.php';
+    . 'classes/metadata-types/register-metadatas.php';
 
     /*
     * Precisa ser registrado imediatamente (fora do ciclo 'plugins_loaded') porque
@@ -48,13 +48,13 @@ require_once TMSP_CUSTOMIZATIONS_PATH
 add_action(
     'tainacan-register-metadata-type',
     array(
-        \TeatroMusicadoSP\Customizations\MetadataTypes\Metadatas::get_instance(),
+        \TeatroMusicadoSP\Customizations\MetadataTypes\RegisterMetadatas::get_instance(),
         'register_metadata_type'
     )
 );
     
 require_once TMSP_CUSTOMIZATIONS_PATH
-    . 'classes/view-modes/person.php';
+    . 'classes/view-modes/register-viewmodes.php';
 
 require_once TMSP_CUSTOMIZATIONS_PATH
     . 'classes/blocks/bibliographic.php';

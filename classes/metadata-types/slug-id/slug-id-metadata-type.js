@@ -1,7 +1,7 @@
 window.tainacan_extra_components = typeof window.tainacan_extra_components != "undefined" ? window.tainacan_extra_components : {};
 
-const TainacanMetadataTypeCustom = {
-    name: "TainacanMetadataTypeCustom",
+const MetadataTypeSlugId = {
+    name: "MetadataTypeSlugId",
     props: {
         itemMetadatum: Object,
         value: [String, Number, Array],
@@ -14,6 +14,9 @@ const TainacanMetadataTypeCustom = {
             else
                 return 0.01;
         }
+    },
+    created: function() {
+        console.log('MetadataTypeSlugId data function called');
     },
     methods: {
         onInput: function(value) {
@@ -36,4 +39,4 @@ const TainacanMetadataTypeCustom = {
     `
 }
 
-window.tainacan_extra_components["tainacan-metadata-type-custom"] = TainacanMetadataTypeCustom;
+window.tainacan_extra_components["metadata-type-slug-id-component"] = MetadataTypeSlugId;

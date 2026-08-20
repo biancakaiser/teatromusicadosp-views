@@ -1,17 +1,19 @@
 window.tainacan_extra_components = typeof window.tainacan_extra_components != "undefined" ? window.tainacan_extra_components : {};
 
-const TainacanMetadataFormCustomType = {
-    name: "TainacanMetadataFormTypeCustom",
+const MetadataTypeSlugIdForm = {
+    name: "MetadataTypeSlugIdForm",
     props: {
         value: [String, Number, Array]
     },
     data: function() {
+        
         return {
             step: [Number, String],
             showEditStepOptions: false
         }
     },
     created: function() {
+        console.log('MetadataTypeSlugIdForm data function called');
         this.step = this.value && this.value.step ? this.value.step : 1;
     },
     methods: {
@@ -91,4 +93,4 @@ const TainacanMetadataFormCustomType = {
     </div>
     `
 }
-window.tainacan_extra_components["tainacan-metadata-form-type-custom"] = TainacanMetadataFormCustomType;
+window.tainacan_extra_components["metadata-type-slug-id-form-component"] = MetadataTypeSlugIdForm;
