@@ -35,7 +35,7 @@
             v-else
             class="cast-history">
             <header class="cast-history__header">
-                <h2 class="cast-history__title">Elenco e equipe</h2>
+                <h2 class="cast-history__title">Membros da Companhia</h2>
                 <p class="cast-history__summary">{{ recordCountLabel }}</p>
             </header>
 
@@ -53,7 +53,10 @@
                             :aria-controls="record.panelId"
                             @click="toggleOpen(record.key)">
                             <span class="period-accordion__label">{{ record.dateRangeLabel }}</span>
-                            <span class="period-accordion__count">{{ getRoleCountLabel(record.roleGroups.length) }}</span>
+                            <span class="period-accordion__summary">
+                                <span class="period-accordion__count period-accordion__count--people"> | {{ getPersonCountLabel(record.personCount) }}</span>
+                                <span class="period-accordion__count period-accordion__count--roles"> | {{ getRoleCountLabel(record.roleGroups.length) }}</span>
+                            </span>
                             <span
                                 class="period-accordion__icon"
                                 aria-hidden="true" />
@@ -185,16 +188,21 @@ export default {
          * montado diretamente a partir dos itens, sem agrupamento.
          */
         recordAccordionItems() {
-            return (this.items || []).map((item, index) => {
-                const key = 'record-' + (item.id != undefined ? item.id : index);
-                return {
-                    key,
-                    headerId: this.getAccordionHeaderId(key),
-                    panelId: this.getAccordionPanelId(key),
-                    dateRangeLabel: this.getItemDateRangeLabel(item),
-                    roleGroups: this.getRoleGroups(item, key)
-                };
-            });
+            return (this.items || [])
+                .map((item, index) => {
+                    const key = 'record-' + (item.id != undefined ? item.id : index);
+                    const roleGroups = this.getRoleGroups(item, key);
+                    return {
+                        key,
+                        headerId: this.getAccordionHeaderId(key),
+                        panelId: this.getAccordionPanelId(key),
+                        dateRangeLabel: this.getItemDateRangeLabel(item),
+                        finalDateSortValue: this.getFinalDateSortValue(item),
+                        roleGroups,
+                        personCount: this.getPersonCount(roleGroups)
+                    };
+                })
+                .sort((firstRecord, secondRecord) => firstRecord.finalDateSortValue - secondRecord.finalDateSortValue);
         }
     },
     methods: {
@@ -215,6 +223,14 @@ export default {
         },
         getPersonCountLabel(count) {
             return count == 1 ? '1 pessoa' : count + ' pessoas';
+        },
+        /*
+         * Soma as pessoas de todas as Funções de um período, usada no 1º
+         * nível do accordion (member.length de cada role já filtra
+         * repetições sem pessoa/função em getRoleGroups).
+         */
+        getPersonCount(roleGroups) {
+            return (roleGroups || []).reduce((total, role) => total + role.members.length, 0);
         },
         findColumnByPattern(columns, pattern) {
             return (columns || []).find(column => {
@@ -245,12 +261,25 @@ export default {
         getDateValue(metadata) {
             return (metadata && metadata.value_as_string) ? metadata.value_as_string : '';
         },
+        /*
+         * Usa o valor bruto (não formatado) da metadata de data final para
+         * ordenar cronologicamente, já que value_as_string segue o formato de
+         * exibição configurado na coleção e pode não ser ordenável como texto.
+         * Itens sem data final válida vão para o fim da lista.
+         */
+        getFinalDateSortValue(item) {
+            const metadata = this.getColumnMetadata(item, this.finalDateColumn);
+            const rawValue = metadata ? (metadata.value || metadata.value_as_string || '') : '';
+            const timestamp = Date.parse(rawValue);
+
+            return isNaN(timestamp) ? Number.POSITIVE_INFINITY : timestamp;
+        },
         getItemDateRangeLabel(item) {
             const start = this.getDateValue(this.getColumnMetadata(item, this.initialDateColumn));
             const end = this.getDateValue(this.getColumnMetadata(item, this.finalDateColumn));
 
             if (start && end && start != end)
-                return start + ' a ' + end;
+                return start + ' á ' + end;
 
             return start || end || 'Data não informada';
         },
@@ -310,7 +339,19 @@ export default {
                 });
             });
 
+            groups.forEach(group => {
+                group.members.sort((firstMember, secondMember) => this.compareAlphabetically(
+                    firstMember.personText || this.stripHtml(firstMember.personHtml),
+                    secondMember.personText || this.stripHtml(secondMember.personHtml)
+                ));
+            });
+
+            groups.sort((firstGroup, secondGroup) => this.compareAlphabetically(firstGroup.label, secondGroup.label));
+
             return groups;
+        },
+        compareAlphabetically(firstText, secondText) {
+            return (firstText || '').localeCompare(secondText || '', 'pt-BR', { sensitivity: 'base' });
         },
         stripHtml(html) {
             if (!html)

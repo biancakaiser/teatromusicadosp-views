@@ -119,7 +119,7 @@ COMPONENTE: period-accordion (1º nível — timeline por intervalo de datas)
   background: var(--paletteColor1);
 }
 
-.period-accordion__trigger:hover { background: rgba(0, 0, 0, 0.16)!important; }
+.period-accordion__trigger:hover { background: var(--paletteColor7)!important; }
 
 .period-accordion__trigger:focus-visible {
   outline: 2px solid var(--paletteColor1);
@@ -137,11 +137,42 @@ COMPONENTE: period-accordion (1º nível — timeline por intervalo de datas)
   font-variant-numeric: lining-nums tabular-nums;
 }
 
-.period-accordion__count {
+.period-accordion__summary {
   flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
   font-size: 14px;
-  color: var(--paletteColor1);
+  color: var(--paletteColor6);
   white-space: nowrap;
+}
+
+.period-accordion__count {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.period-accordion__count::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 17px;
+  height: 17px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  opacity: 0.9;
+}
+
+/* ícone de pessoa, igual ao usado em .company-accordion__count (members-template) */
+.period-accordion__count--people::before {
+  background-image: url("../assets/users.svg");
+}
+
+/* ícone de máscaras de teatro (comédia e tragédia) para a contagem de funções */
+.period-accordion__count--roles::before {
+  background-image: url("../assets/masks.svg");
 }
 
 .period-accordion__icon {
@@ -372,7 +403,7 @@ RESPONSIVO
 @media (max-width: 620px) {
   .period-accordion__trigger,
   .role-accordion__trigger { flex-wrap: wrap; row-gap: 0.5rem; }
-  .period-accordion__count,
+  .period-accordion__summary { flex: 1 1 100%; flex-wrap: wrap; white-space: normal; }
   .role-accordion__count { flex: 1 1 100%; white-space: normal; }
 }
 

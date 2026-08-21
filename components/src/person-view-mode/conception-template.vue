@@ -40,6 +40,7 @@
                         v-if="relatedMetadataLabel"
                         class="conception-accordion__label"
                         v-html="relatedMetadataLabel" />
+                    <span class="conception-accordion__count">  |  {{ itemsCountLabel }}</span>
                     <span
                         class="conception-accordion__icon"
                         aria-hidden="true" />
@@ -56,7 +57,7 @@
                     class="conception-list"
                     role="list">
                     <li
-                        v-for="(item, index) in items"
+                        v-for="(item, index) in sortedItems"
                         :key="item.id != undefined ? item.id : index"
                         class="conception-list__item"
                         :data-tainacan-item-id="item.id">
@@ -192,6 +193,16 @@ export default {
         },
         accordionPanelId() {
             return (this.containerId || 'conception') + '-accordion-panel';
+        },
+        itemsCountLabel() {
+            const count = (this.items || []).length;
+            return count == 1 ? '1 peça' : count + ' peças';
+        },
+        sortedItems() {
+            return (this.items || []).slice().sort((firstItem, secondItem) => this.compareAlphabetically(
+                this.stripHtml(this.getItemTitleHtml(firstItem)),
+                this.stripHtml(this.getItemTitleHtml(secondItem))
+            ));
         }
     },
     methods: {
@@ -293,6 +304,21 @@ export default {
                 return metadata.value_as_string;
 
             return '';
+        },
+        compareAlphabetically(firstText, secondText) {
+            return (firstText || '').localeCompare(secondText || '', 'pt-BR', { sensitivity: 'base' });
+        },
+        stripHtml(html) {
+            if (!html)
+                return '';
+
+            if (typeof document == 'undefined')
+                return html.toString().replace(/<[^>]*>/g, '').trim();
+
+            const temporaryElement = document.createElement('div');
+            temporaryElement.innerHTML = html;
+
+            return (temporaryElement.textContent || temporaryElement.innerText || '').trim();
         }
     }
 }
