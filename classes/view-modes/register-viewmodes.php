@@ -27,9 +27,21 @@ class RegisterViewModes implements Module
             // While `npm run dev` (webpack-dev-server) is running, load the bundle straight from
             // it instead of the built file, so edits hot-reload. Enable by adding
             // define('TEATRO_COMPONENTS_DEV_SERVER', true); to wp-config.php.
-            $component_script_url = ( defined('TEATRO_COMPONENTS_DEV_SERVER') && TEATRO_COMPONENTS_DEV_SERVER )
-                ? 'http://127.0.0.1:8080/components.bundle.js'
-                : $this->componentsFolderURL . '/build/components.bundle.js';
+            if ( defined('TEATRO_COMPONENTS_DEV_SERVER') && TEATRO_COMPONENTS_DEV_SERVER ) {
+                $component_script_url = 'http://127.0.0.1:8080/components.bundle.js';
+            } else {
+                $component_script_url = $this->componentsFolderURL . '/build/components.bundle.js';
+
+                // Tainacan's register_vuejs_component() always enqueues with its own
+                // TAINACAN_VERSION as the cache-busting `ver`, so bumping this plugin's
+                // version has no effect on the browser cache for this bundle. Append the
+                // built file's mtime as our own cache buster instead, so production picks
+                // up a new bundle automatically on every build.
+                $bundle_path = $this->componentsFolderPath . 'build/components.bundle.js';
+                if ( file_exists( $bundle_path ) ) {
+                    $component_script_url = add_query_arg( 'v', filemtime( $bundle_path ), $component_script_url );
+                }
+            }
 
             $helper->register_vuejs_component('teatro-person-viewmode', $component_script_url, [ 'public' => true, 'deps' => ['wp-i18n'] ], null, true);
             // Registering the view mode
